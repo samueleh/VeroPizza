@@ -412,6 +412,7 @@ function StartButton() {
   startGame();
   gameDiv.style.display = "block";
   startDiv.style.display = "none";
+  gameAudio.play();
 }
 
 // Function to Pause game
