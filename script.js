@@ -407,12 +407,13 @@ function SelectedHouseCollide() {
 
 // Function to make start button work by switching screens
 function StartButton() {
+   gameAudio.play();
   var startDiv = document.getElementById("startScreen");
   var gameDiv = document.getElementById("mainScreen");
   startGame();
   gameDiv.style.display = "block";
   startDiv.style.display = "none";
-  gameAudio.play();
+ 
 }
 
 // Function to Pause game
