@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style> canvas { border: 1px solid black; } </style>
+</head>
+<center>
+<body onload="startGame()">
+    <h1>Deliver the pizza in time!</h1>
+    <canvas id="gameArea" width="800" height="500"></canvas>
+    <p id="msg"></p>
+    <p id = "winsCounter"></p>
+    <p id="WinMessage"></p>
+
+    
+    <script>
+        var frog;
+        var cars = []; // Array to store cars
+        var moveSpeed = 3;
+        var carSpeed = 5;
+        var wins = 15;
+
+        // Adding components to game
+        function startGame() {
+            gameArea.context = gameArea.getContext("2d");
+            // Run updateGameArea every 20ms
+            gameArea.interval = setInterval(updateGameArea, 20);
+
+            // Keyboard event listeners
+            window.addEventListener("keydown", function (e) {
+                gameArea.keys = (gameArea.keys || []);
+                gameArea.keys[e.keyCode] = (e.type == "keydown");
+            });
+
+            window.addEventListener("keyup", function (e) {
+                gameArea.keys[e.keyCode] = (e.type == "keydown");
+            });
+
+            // New frog player
+            frog = new component(50, 40, "frogger.png", 370, 450);
+
+            // Create cars in array
+            for (var i = 0; i < 5; i++) {
+                cars[i] = new component(70, 40, "car.png", gameArea.width + Math.random() * 1000, 
+                    100 * (Math.floor(Math.random() * 6)));
+                
+                // Check if cars collide with existing cars
+                for (var j = 0; j < cars.length; j++) {
+                    if (i != j) {
+                        while (cars[i].collides(cars[j])) {
+                            cars[i].x = gameArea.width + Math.random() * 1000;
+                            cars[i].y = 100 * (Math.floor(Math.random() * 6));
+                        }
+                    }
+                }
+            }
+        }
+        winsCounter.innerHTML = "Cash: " + wins
+
+
+        function stopGame() {
+            clearInterval(gameArea.interval);
+        }
+
+        // Setting up a new component
+        function component(width, height, img, x, y) {
+            this.image = new Image();
+            this.image.src = img;
+            this.width = width;
+            this.height = height;
+            this.speedX = 0;
+            this.speedY = 0;
+            this.x = x;
+            this.y = y;
+
+            this.update = function () {
+                gameArea.context.drawImage(this.image, this.x, this.y, this.width, this.height);
+            };
+
+            this.newPos = function () {
+                this.x += this.speedX;
+                this.y += this.speedY;
+            };
+
+            // Function to check collision
+            this.collides = function (otherobj) {
+                var myleft = this.x;
+                var myright = this.x + (this.width);
+                var mytop = this.y;
+                var mybottom = this.y + (this.height);
+                var otherleft = otherobj.x;
+                var otherright = otherobj.x + (otherobj.width);
+                var othertop = otherobj.y;
+                var otherbottom = otherobj.y + (otherobj.height);
+                var crash = true;
+
+                if ((mybottom < othertop) || (mytop > otherbottom) || 
+                    (myright < otherleft) || (myleft > otherright)) {
+                    crash = false;
+                }
+                return crash;
+            };
+        }
+
+        // movement
+        function updateGameArea() {
+            // Checking for collision
+            for (var j = 0; j < cars.length; j++) {
+                if (frog.collides(cars[j])) {
+                    stopGame();
+                    wins = wins -5;
+                    if (wins < 1) {
+                        msg.innerHTML = "Gameover!";
+                        msg.winsCounter = "Bankrupt!"
+                    } else {
+                        startGame();
+                        winsCounter.innerHTML = "Cash: " + wins
+                        HurtAnim()
+                    }
+                    return;
+  
+                   
+
+
+                
+
+                }
+            }
+
+            // Checking for win
+            if (frog.y < 0) {
+                stopGame()
+                WinMessage.innerHTML = "+5 cash!"
+                setTimeout(function() {
+                WinMessage.innerHTML = " ";
+                }, 2000); 
+                wins = wins + 5;
+                carSpeed++;
+                winsCounter.innerHTML = "Cash: " + wins
+                startGame()
+
+            }
+            if (frog.x < -10) {
+                stopGame()
+                wins = wins -5;
+                    if (wins < 1) {
+                        msg.innerHTML = "Gameover!";
+                    } else {
+                        startGame();
+                        winsCounter.innerHTML = "Cash: " + wins
+                    }
+                    return;
+            }
+            if (frog.y > 470) {
+                stopGame()
+                wins = wins -5;
+                    if (wins < 1) {
+                        msg.innerHTML = "Gameover!";
+                    } else {
+                        startGame();
+                        winsCounter.innerHTML = "Cash: " + wins
+                    }
+                    return;
+            }            if (frog.x > 720) {
+                stopGame()
+                wins = wins -5;
+                    if (wins < 1) {
+                        msg.innerHTML = "Gameover!";
+                    } else {
+                        startGame();
+                        winsCounter.innerHTML = "Cash: " + wins
+                    }
+                    return;
+            }
+
+            
+
+            
+
+
+
+            // Refreshing components
+            gameArea.context.clearRect(0, 0, gameArea.width, gameArea.height);
+            frog.speedX = 0;
+            frog.speedY = 0;
+
+            // Checking arrow keys for frog movements
+            if (gameArea.keys && gameArea.keys[37]) { frog.speedX = -moveSpeed; }
+            if (gameArea.keys && gameArea.keys[39]) { frog.speedX = moveSpeed; }
+            if (gameArea.keys && gameArea.keys[38]) { frog.speedY = -moveSpeed; }
+            if (gameArea.keys && gameArea.keys[40]) { frog.speedY = moveSpeed; }
+
+            for (j = 0; j < cars.length; j++) {
+                // Checking if cars have reached the end
+                if (cars[j].x < 0) {
+                    cars[j].x = 800 + Math.random() * 1000;
+                    cars[j].y = 100 * (Math.floor(Math.random() * 6));
+                } else {
+                    cars[j].x -= carSpeed;
+                }
+                cars[j].update();
+            }
+
+            frog.newPos();
+            frog.update();
+            frogTest.innerHTML = frog.x;
+        }
+
+
+
+        function HurtAnim() {
+    let intervalId = setInterval(function() {
+        if (frog.image.src.includes("froggerHurt.png")) {
+            frog.image.src = "frogger.png";  
+        } else {
+            frog.image.src = "froggerHurt.png";  
+        }
+    }, 150);  
+    setTimeout(function() {
+        clearInterval(intervalId);  
+        frog.image.src = "frogger.png";  
+    }, 2000);
+}
+
+    </script>
+</body>
+</html>
