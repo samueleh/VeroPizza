@@ -89,6 +89,15 @@ button {
   left: 70px; /* 10px (margin) + 50px (Pause width) + 10px (gap) */
 }
 
+#MuteButton {
+  height: 50px;
+  width: 50px;
+  font-size: 25px;
+  position: fixed;
+  top: 10px;
+  left: 130px;
+}
+
 .PiazzaImg {
   width: 50px;
 }
