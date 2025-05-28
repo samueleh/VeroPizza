@@ -18,6 +18,8 @@ var YellowClockRunning = false;
 var RedClockRunning = false;
 var Deliveries = 0;
 var Paused = false;
+var musicPlaying = false;
+var GameOver = false;
 // 1 sec = 1 x 50
 // timeSeconds = sec x 50
 
@@ -166,17 +168,7 @@ function updateGameArea() {
   // Check for collision
   for (var j = 0; j < cars.length; j++) {
     if (frog.collides(cars[j])) {
-      stopGame();
-      wins = wins - 5;
-      if (wins < 1) {
-        msg.innerHTML = "Gameover!";
-        msg.winsCounter = "Bankrupt!";
-      } else {
-        startGame();
-        winsCounter.innerHTML = "Cash: " + wins;
-        HurtAnim();
-        return;
-      }
+      LoseCash();
     }
   }
   // Disable buttons if player does not have enough cash
@@ -210,6 +202,7 @@ function updateGameArea() {
   // Check if time runs out
   if (GameTimer < 1) {
     LoseCash();
+    time = 500;
     clock.src = "ClockAnim..gif";
     YellowClockRunning = false;
     RedClockRunning = false;
@@ -371,13 +364,14 @@ function LoseCash() {
   wins = wins - 5;
   if (wins < 1) {
     msg.innerHTML = "Gameover!";
-    msg.winsCounter = "Bankrupt!";
+    winsCounter.innerHTML = "Bankrupt!";
     time = 0;
+    GameOver = true;
+    PauseButton.disabled = true;
   } else {
     startGame();
     winsCounter.innerHTML = "Cash: " + wins;
     HurtAnim();
-    time = 500;
   }
 }
 
@@ -407,27 +401,28 @@ function SelectedHouseCollide() {
 
 // Function to make start button work by switching screens
 function StartButton() {
-   gameAudio.play();
+  turnMusicOn();
   var startDiv = document.getElementById("startScreen");
   var gameDiv = document.getElementById("mainScreen");
   startGame();
   gameDiv.style.display = "block";
   startDiv.style.display = "none";
- 
 }
 
 // Function to Pause game
 function PauseGame() {
-  if (Paused == false) {
-    stopGame();
-    Paused = true;
-    PauseButton.innerHTML = "▷";
-    PauseButton.style.paddingBottom = "0px";
-  } else if (Paused == true) {
-    startGame();
-    Paused = false;
-    PauseButton.innerHTML = "⏸";
-    PauseButton.style.paddingBottom = "7px";
+  if (GameOver == false) {
+    if (Paused == false) {
+      stopGame();
+      Paused = true;
+      PauseButton.innerHTML = "▷";
+      PauseButton.style.paddingBottom = "0px";
+    } else if (Paused == true) {
+      startGame();
+      PauseButton.innerHTML = "⏸";
+      PauseButton.style.paddingBottom = "7px";
+      Paused = false;
+    }
   }
 }
 
@@ -455,4 +450,20 @@ function CheckButtons() {
   } else {
     timeButton.disabled = false;
   }
+}
+
+function MuteMusic() {
+  if (musicPlaying === true) {
+    gameAudio.pause();
+    musicPlaying = false;
+    MuteButton.innerHTML = "♫";
+  } else {
+    turnMusicOn();
+  }
+}
+
+function turnMusicOn() {
+  gameAudio.play();
+  musicPlaying = true;
+  MuteButton.innerHTML = "⊘";
 }
